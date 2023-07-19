@@ -8,11 +8,10 @@ Testenium Automation TestCase
 5. Arama kutucuğuna "gömlek" kelimesi girilir
 6. Klavye üzerinden enter tuşuna bastırılır
 7. Sonuca göre sergilenen ürünlerden rastgele bir ürün seçilir
-8. Seçilen ürünün ürün bilgisi ve tutar bilgisi txt dosyasına yazdırılır
-9. Seçilen ürün sepete eklenir
-10. Ürün sayfasındaki fiyat ile sepette yer alan ürün fiyatının doğruluğu karşılaştırılır
-11. Adet arttırılarak ürün adedinin 2 olduğu doğrulanır
-12. Ürün sepetten silinerek sepetin boş olduğu kontrol edilir
+8. Seçilen ürün sepete eklenir
+9. Ürün sayfasındaki fiyat ile sepette yer alan ürün fiyatının doğruluğu karşılaştırılır
+10. Adet arttırılarak ürün adedinin 2 olduğu doğrulanır
+11. Ürün sepetten silinerek sepetin boş olduğu kontrol edilir
 
 NOT: Proje Page Object Pattern kullanılarak yazılmalıdır.
 """
@@ -24,24 +23,17 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 import time
-
-driver = webdriver.Chrome()
-driver.maximize_window()
-wait = WebDriverWait(driver,15)
-
-driver.get("https://www.trendyol.com/")
-main_page_url = driver.current_url
-action = ActionChains(driver)
+import random
 
 class MainPage():
     def __init__(self,driver):
         self.driver = driver
         self.search_box =(By.CSS_SELECTOR, "[data-testid='suggestion']")
-        self.login_button = driver.find_element(By.XPATH,"/html/body/div[1]/div[1]/div/div[2]/div/div/div[3]/div/div/div/div[1]/div[1]/p")
-        self.search_button = (By.CSS_SELECTOR,"[data-testid='search-icon']")
         self.pop_up = (By.ID,"Combined-Shape")
     def assert_the_web_page(self):
-        assert "https://www.trendyol.com/" in main_page_url
+        expected_url = "https://www.trendyol.com/"
+        main_page_url = self.driver.current_url
+        assert expected_url == main_page_url
     def pop_up_delete(self):
         self.driver.find_element(*self.pop_up).click()
     def write_text_in_search_box(self,text):
@@ -51,15 +43,73 @@ class MainPage():
     def enter_text_in_search_box(self):
         enter = self.driver.find_element(*self.search_box)
         enter.send_keys(Keys.ENTER)
+class SearchResultPage():
+    def __init__(self,driver):
+        self.driver = driver
+        self.search_results = self.driver.find_elements(By.XPATH,"//div[@class='p-card-wrppr with-campaign-view']")
+    def small_pop_up_deleter(self):
+        driver.execute_script("window.scrollBy(0, 100)")
+        try:
+            overlay_element =self.driver.find_element(By.XPATH,"//div[@class='overlay']")
+            popup_element = self.driver.find_element(By.XPATH,"//div[@class='popup']")
+            if overlay_element.is_displayed() or popup_element.is_displayed():
+                action = ActionChains(self.driver)
+                action.move_by_offset(100,100).click().perform()
+        except NoSuchElementException:
+            pass
+    def click_random_result(self):
+        random_result = random.choice(self.search_results)
+        random_result.click()
 
+
+class ItemPage():
+    def __init__(self, driver):
+        self.driver = driver
+        self.add_to_basket = (By.XPATH, "/html/body/div[1]/div[5]/main/div/div[2]/div[1]/div[2]/div[2]/div[4]/button")
+    def delete_item_pop_up(self):
+        driver.execute_script("window.scrollBy(0, 100)")
+        try:
+            campain_pop_up = self.driver.find_element(By.XPATH, "//div[@class='campaign-button bold']")
+            if campain_pop_up.is_displayed():
+                action = ActionChains(self.driver)
+                action.move_by_offset(100, 100).click().perform()
+        except NoSuchElementException:
+            pass
+    def add_to_basket_button(self):
+        self.driver.find_element(*self.add_to_basket).click()
+    def check_item_added_to_basket(self):
+        try:
+            basket_item_count = self.driver.find_element(By.XPATH,
+                                                         "//div[@class='basket-item-count-container visible']")
+            added_to_basket = self.driver.find_element(By.XPATH, "//div[@class='add-to-basket-button-text-success']")
+            if basket_item_count.text == "1" and added_to_basket.text == "Sepete Eklendi":
+                return True
+        except NoSuchElementException:
+            pass
+        return False
+
+driver = webdriver.Chrome()
+driver.maximize_window()
+wait = WebDriverWait(driver,15)
+driver.get("https://www.trendyol.com/")
 
 main_page = MainPage(driver)
 main_page.assert_the_web_page()
 main_page.pop_up_delete()
 main_page.write_text_in_search_box("şort")
+time.sleep(2)
 main_page.clear_search_box()
 main_page.write_text_in_search_box("gömlek")
 main_page.enter_text_in_search_box()
-time.sleep(20)
-
-
+time.sleep(2)
+search_result_page = SearchResultPage(driver)
+search_result_page.small_pop_up_deleter()
+search_result_page.click_random_result()
+time.sleep(5)
+item_page = ItemPage(driver)
+item_page.delete_item_pop_up()
+time.sleep(5)
+item_page.add_to_basket_button()
+item_page.check_item_added_to_basket()
+time.sleep(5)
+driver.close()
