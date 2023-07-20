@@ -64,11 +64,10 @@ class SearchResultPage():
 class ItemPage():
     def __init__(self, driver):
         self.driver = driver
-    def window_change(self):
-        current_window = driver.current_window_handle
-        new_window = driver.window_handles[-1]
-        driver.switch_to.window(new_window)
-        new_window_url = driver.current_url
+        self.go_to_basket = (By.XPATH,"//div[@class='account-nav-item basket-preview']")
+        self.price_at_item_page = []
+        self.price_at_basket_page =[]
+
     def delete_item_pop_up(self):
         driver.execute_script("window.scrollBy(0, 100)")
         try:
@@ -78,7 +77,15 @@ class ItemPage():
                 action.move_by_offset(100, 100).click().perform()
         except NoSuchElementException:
             pass
+    def window_change(self):
+            current_window = self.driver.current_window_handle
+            new_window = self.driver.window_handles[-1]
+            self.driver.switch_to.window(new_window)
+            new_window_url = self.driver.current_url
     def add_to_basket_button(self):
+        price_item = self.driver.find_element(By.XPATH,"//span[@class='prc-dsc']")
+        price2 = price_item.text
+        self.price_at_item_page.append(price2)
         self.add_to_basket = self.driver.find_element(By.CSS_SELECTOR,"[component-id = '1'")
         self.add_to_basket.click()
 
@@ -91,6 +98,21 @@ class ItemPage():
         except NoSuchElementException:
             pass
         return False
+    def move_mouse_to_basket_click(self):
+        basket_preview = self.driver.find_element(*self.go_to_basket)
+        action = ActionChains(self.driver)
+        action.move_to_element(basket_preview).perform()
+        go_to_basket_button = self.driver.find_element(By.CSS_SELECTOR,"a.goBasket")
+        go_to_basket_button.click()
+    def compare_prices(self):
+        price_at_basket = self.driver.find_element(By.XPATH,"//div[@class='pb-basket-item-price']")
+        price = price_at_basket.text
+        self.price_at_basket_page.append(price)
+        if self.price_at_item_page == self.price_at_basket_page:
+            pass
+
+
+
 
 driver = webdriver.Chrome()
 driver.maximize_window()
@@ -117,4 +139,8 @@ time.sleep(2)
 item_page.add_to_basket_button()
 item_page.check_item_added_to_basket()
 time.sleep(2)
+item_page.move_mouse_to_basket_click()
+item_page.window_change()
+item_page.compare_prices()
+time.sleep(5)
 driver.close()
