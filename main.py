@@ -61,11 +61,14 @@ class SearchResultPage():
         random_result = random.choice(self.search_results)
         random_result.click()
 
-
 class ItemPage():
     def __init__(self, driver):
         self.driver = driver
-        self.add_to_basket = (By.XPATH, "/html/body/div[1]/div[5]/main/div/div[2]/div[1]/div[2]/div[2]/div[4]/button")
+    def window_change(self):
+        current_window = driver.current_window_handle
+        new_window = driver.window_handles[-1]
+        driver.switch_to.window(new_window)
+        new_window_url = driver.current_url
     def delete_item_pop_up(self):
         driver.execute_script("window.scrollBy(0, 100)")
         try:
@@ -76,11 +79,12 @@ class ItemPage():
         except NoSuchElementException:
             pass
     def add_to_basket_button(self):
-        self.driver.find_element(*self.add_to_basket).click()
+        self.add_to_basket = self.driver.find_element(By.CSS_SELECTOR,"[component-id = '1'")
+        self.add_to_basket.click()
+
     def check_item_added_to_basket(self):
         try:
-            basket_item_count = self.driver.find_element(By.XPATH,
-                                                         "//div[@class='basket-item-count-container visible']")
+            basket_item_count = self.driver.find_element(By.XPATH, "//div[@class='basket-item-count-container visible']")
             added_to_basket = self.driver.find_element(By.XPATH, "//div[@class='add-to-basket-button-text-success']")
             if basket_item_count.text == "1" and added_to_basket.text == "Sepete Eklendi":
                 return True
@@ -107,9 +111,10 @@ search_result_page.small_pop_up_deleter()
 search_result_page.click_random_result()
 time.sleep(5)
 item_page = ItemPage(driver)
+item_page.window_change()
 item_page.delete_item_pop_up()
-time.sleep(5)
+time.sleep(2)
 item_page.add_to_basket_button()
 item_page.check_item_added_to_basket()
-time.sleep(5)
+time.sleep(2)
 driver.close()
