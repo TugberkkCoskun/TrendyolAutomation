@@ -1,4 +1,5 @@
 """
+
 Testenium Automation TestCase
 
 1. www.trendyol.com sitesi açılır
@@ -24,6 +25,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 import time
 import random
+import re
 
 class MainPage():
     def __init__(self,driver):
@@ -110,8 +112,20 @@ class ItemPage():
         self.price_at_basket_page.append(price)
         if self.price_at_item_page == self.price_at_basket_page:
             pass
-
-
+    def press_plus_button(self):
+        plus_button = wait.until(EC.presence_of_element_located((By.XPATH,"//button[@class = 'ty-numeric-counter-button']")))
+        driver.execute_script("arguments[0].click()",plus_button)
+        value = wait.until(EC.presence_of_element_located((By.XPATH,"//input[@class = 'counter-content']")))
+        item_count = value.get_attribute("value")
+        if item_count == "2":
+            pass
+    def clear_basket(self):
+        trash_button = wait.until(EC.presence_of_element_located((By.XPATH,"//i[@class='i-trash']")))
+        driver.execute_script("arguments[0].click()",trash_button)
+        try:
+            wait.until(EC.presence_of_element_located((By.XPATH,"//i[@class = 'i-bagg']")))
+        except NoSuchElementException:
+            print("Kaldırıldı yazısı yok")
 
 
 driver = webdriver.Chrome()
@@ -131,7 +145,7 @@ time.sleep(2)
 search_result_page = SearchResultPage(driver)
 search_result_page.small_pop_up_deleter()
 search_result_page.click_random_result()
-time.sleep(5)
+time.sleep(2)
 item_page = ItemPage(driver)
 item_page.window_change()
 item_page.delete_item_pop_up()
@@ -142,5 +156,8 @@ time.sleep(2)
 item_page.move_mouse_to_basket_click()
 item_page.window_change()
 item_page.compare_prices()
-time.sleep(5)
+driver.refresh()
+item_page.press_plus_button()
+item_page.clear_basket()
+time.sleep(3)
 driver.close()
