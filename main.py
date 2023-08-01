@@ -1,7 +1,6 @@
 """
-
 Testenium Automation TestCase
-
+Scenario 1 :
 1. www.trendyol.com sitesi açılır
 2. Ana sayfanın açıldığı kontrol edilir
 3. Arama kutucuğuna "şort" kelimesi girilir
@@ -13,6 +12,23 @@ Testenium Automation TestCase
 9. Ürün sayfasındaki fiyat ile sepette yer alan ürün fiyatının doğruluğu karşılaştırılır
 10. Adet arttırılarak ürün adedinin 2 olduğu doğrulanır
 11. Ürün sepetten silinerek sepetin boş olduğu kontrol edilir
+
+Scenario 2:
+1. www.trendyol.com sitesi açılır
+2. Ana sayfanın açıldığı kontrol edilir
+3. Sağ üst köşedeki Giriş yap butonunun üstüne gidilir
+4. Giriş yap butonuna tıklanır
+5. Yanlış E-posta (@ işareti konmadan) Yanlış şifre yazılır
+6. Lütfen geçerli bir e-posta giriniz uyarısı görülür
+7. Yanlış E-posta (@ işareti ile) Yanlış şifre yazılır
+8. E-posta adresiniz ve/veya şifreniz hatalı uyarısı görülür
+9. Doğru E-posta, Yanlış şifre yazılır
+10. E-posta adresiniz ve/veya şifreniz hatalı uyarısı görülür
+11. Yanlış E-posta, Doğru şifre yazılır
+12. E-posta adresiniz ve/veya şifreniz hatalı uyarısı görülür
+13. Doğru E-posta, Doğru şifre yazılır
+14. Giriş yapılarak anasayfaya yönlendirildiği kontrol edilir
+
 
 NOT: Proje Page Object Pattern kullanılarak yazılmalıdır.
 """
@@ -127,10 +143,9 @@ class ItemPage():
         except NoSuchElementException:
             print("Kaldırıldı yazısı yok")
 
-
 driver = webdriver.Chrome()
 driver.maximize_window()
-wait = WebDriverWait(driver,15)
+wait = WebDriverWait(driver, 15)
 driver.get("https://www.trendyol.com/")
 
 main_page = MainPage(driver)
@@ -141,6 +156,7 @@ time.sleep(2)
 main_page.clear_search_box()
 main_page.write_text_in_search_box("gömlek")
 main_page.enter_text_in_search_box()
+
 time.sleep(2)
 search_result_page = SearchResultPage(driver)
 search_result_page.small_pop_up_deleter()
@@ -161,3 +177,14 @@ item_page.press_plus_button()
 item_page.clear_basket()
 time.sleep(3)
 driver.close()
+
+
+
+
+
+
+
+
+
+
+
