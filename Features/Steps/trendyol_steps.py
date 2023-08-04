@@ -75,7 +75,7 @@ def add_to_basket(context):
     window= context.driver.current_window_handle
     new_window = context.driver.window_handles[-1]
     context.driver.switch_to.window(new_window)
-    new_wind_url = context.driver.current_url
+    context.new_wind_url = context.driver.current_url
     context.price_at_item_page = context.wait.until(EC.presence_of_element_located((By.XPATH,"//span[@class='prc-dsc']")))
     context.price_at_item_list =[]
     context.price_at_item_list.append(context.price_at_item_page.text)
@@ -93,6 +93,37 @@ def verify_the_price(context):
     price_at_my_basket_list.append(price_at_my_basket.text)
 
     assert context.price_at_item_list == price_at_my_basket_list
+
+@when('User increase the quantity')
+def increase_quantity(context):
+    increase_button = context.wait.until(EC.element_to_be_clickable((By.XPATH,"//button[@class='ty-numeric-counter-button']")))
+    increase_button.click()
+    time.sleep(2)
+@then('User shall verified that the quantity of the product is 2')
+def assertion_quantity(context):
+    quantity = context.wait.until(EC.presence_of_element_located((By.XPATH,"//input[@class='counter-content']")))
+    item_count = quantity.get_attribute("value")
+    try:
+        assert item_count == "2"
+
+    except AssertionError:
+        raise AssertionError
+@when('User press the bin button')
+def press_bin_button(context):
+    bin_button = context.wait.until(EC.element_to_be_clickable((By.XPATH,"//i[@class='i-trash']")))
+    context.driver.execute_script("arguments[0].click()",bin_button)
+    time.sleep(2)
+@then('User shall verify that the basket is empty')
+def assertion_of_basket_empty(context):
+    bos_sepet = context.wait.until(EC.presence_of_element_located((By.XPATH,"//div[@class='pb-header']")))
+    assertion_of_basket = bos_sepet.text
+    try:
+        assert assertion_of_basket == "Sepetim (0 Ürün)"
+    except AssertionError:
+        raise AssertionError
+
+
+
 
 
 
