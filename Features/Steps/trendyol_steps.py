@@ -47,7 +47,7 @@ def gomlek_results(context):
         pass
 
 @given('User shall go to the "https://www.trendyol.com/sr?q=g%C3%B6mlek&qt=g%C3%B6mlek&st=g%C3%B6mlek&os=1"')
-def go_to_gömlek_result_page(context):
+def go_to_gomlek_result_page(context):
     context.driver = webdriver.Chrome()
     context.wait = WebDriverWait(context.driver, 15)
     context.driver.get("https://www.trendyol.com/sr?q=g%C3%B6mlek&qt=g%C3%B6mlek&st=g%C3%B6mlek&os=1")
@@ -121,6 +121,54 @@ def assertion_of_basket_empty(context):
         assert assertion_of_basket == "Sepetim (0 Ürün)"
     except AssertionError:
         raise AssertionError
+
+@given('User Shall go to the trendyol main page and assert the main page is opened')
+def go_to_main_page(context):
+    context.driver = webdriver.Chrome()
+    context.driver.maximize_window()
+    context.driver.get("https://www.trendyol.com/")
+    assert "https://www.trendyol.com/" in context.driver.current_url
+    pop_up = context.driver.find_element(By.ID,"Combined-Shape")
+    pop_up.click()
+    time.sleep(3)
+@when('User stay top of the giris yap icon and press giris yap button')
+def giris_yap_button(context):
+    context.wait = WebDriverWait(context.driver,15)
+    giris_yap_icon = context.driver.find_element(By.XPATH,"//p[@class='link-text']")
+    context.action = ActionChains(context.driver)
+    context.action.move_to_element(giris_yap_icon).perform()
+    login_button = context.wait.until(EC.element_to_be_clickable((By.XPATH,"//div[@class='login-button']")))
+    login_button.click()
+
+@then('User shall assert that the login page is opened')
+def assert_login_page(context):
+    assert "https://www.trendyol.com/giris?cb=https%3A%2F%2Fwww.trendyol.com%2F" in context.driver.current_url
+
+@when('User shall insert wrong e-mail and wrong password, correct e-mail and wrong password, wrong e-mail and correct password')
+def wrong_login_combinations(context):
+    wrong_e_mail = "asdadasdasd@hotmail.com"
+    wrong_password = "12345678"
+    correct_e_mail = "tugberk.coskun94@hotmail.com"
+    correct_pass = "xx4yy7f5"
+    context.driver.find_element(By.ID,"login-email")
+    context.driver.find_element(By.ID,"login-password-input")
+    context.action.send_keys(wrong_e_mail)
+    context.action.send_keys(wrong_password)
+    context.driver.find_element(By.CSS_SELECTOR,"[type='submit']").click()
+    time.sleep(10)
+
+@then('User shall assert that "E-posta adresiniz ve/veya şifreniz hatalı " warning appeared')
+def assert_warning(context):
+    pass
+
+@when('User shall insert correct e-mail and correct password')
+def correct_login_combinations(context):
+    pass
+
+@then('User Shall assert that login is successfull and directed to the main page')
+def assert_login(context):
+    pass
+
 
 
 

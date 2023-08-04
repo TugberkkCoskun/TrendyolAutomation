@@ -19,3 +19,13 @@ Feature: Trendyol Basic Automation Task
     Then User shall verified that the quantity of the product is 2
     When User press the bin button
     Then User shall verify that the basket is empty
+
+   @login_page
+   Scenario: Trendyol Login Page
+     Given User Shall go to the trendyol main page and assert the main page is opened
+     When User stay top of the giris yap icon and press giris yap button
+     Then User shall assert that the login page is opened
+     When User shall insert wrong e-mail and wrong password, correct e-mail and wrong password, wrong e-mail and correct password
+     Then User shall assert that "E-posta adresiniz ve/veya şifreniz hatalı " warning appeared
+     When User shall insert correct e-mail and correct password
+     Then User Shall assert that login is successfull and directed to the main page
